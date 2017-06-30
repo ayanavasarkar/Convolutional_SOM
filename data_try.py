@@ -22,8 +22,8 @@ import numpy as np
 def main():
     training_set, validation_set, test_set = mnist_loader.load_data()
     images = get_images(training_set)
-   
-    print np.array(training_set).size
+    print (images.type)
+    #print (np.array(training_set)).shape
     
 def get_images(training_set):
     """ Return a list containing the images from the MNIST data
