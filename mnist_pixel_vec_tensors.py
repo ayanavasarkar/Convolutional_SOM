@@ -9,19 +9,20 @@ Created on Wed Jun 21 15:26:52 2017
 import numpy as np
 import csv
 import matplotlib.pyplot as plt
+import argparse
 
-row = 0
-col = 0
+parser = argparse.ArgumentParser()
+parser.add_argument("label", help="label of the MNIST dataset", type=int)
+args = parser.parse_args()
 
-l = []
-final = []
-
+i = args.label
 
 with open('mnist_test_10.csv', 'r') as csv_file:
     for data in csv.reader(csv_file):
-        arr=np.zeros((24*24,25), dtype='int')
+        
+        arr=np.zeros((24*24,25), dtype='int64')
         # The first column is the label
-        label = data[0]
+        label = data[i]
 
         # The rest of columns are pixels
         pixels = data[1:]
@@ -30,69 +31,49 @@ with open('mnist_test_10.csv', 'r') as csv_file:
         # This array will be of 1D with length 784
         # The pixel intensity values are integers from 0 to 255
         pixels = np.array(pixels, dtype='int64')
-        print (pixels[0]).dtype
+        #print (pixels[0]).dtype
         # Reshape the array into 28 x 28 array (2-dimensional array)
         pixels = pixels.reshape((28, 28))
-        
-        ### Implementing the "np.take"
-        counter = 0
-        while(row<24):
-            col=0
-            while(col<24):
-                for i in range (0, 5):
-                    
-                    l= list(range(col,col+5))
-                
-                #l=([row:row+5, col:col+5]).tolist()
-                '''
-                for i in range(0,5):
-                    for j in range(0,5):
-                                              
-                        arr[counter,i+j]= l[i][j]
-                        
-                print np.max(arr)
-                '''
-                print l
-                del l[:]
-                col=col+1
-                counter = counter+1
-                    
-                
-            row=row+1        
-        
-        
-        
-        
-        # Plot
-        '''
-        counter = 0
-        row=0
-        while(row<24):
-            col=0
-            while(col<24):
-                l=(pixels[row:row+5, col:col+5]).tolist()
-                #print len(l)
-                for i in range(0,5):
-                    for j in range(0,5):
-                        #final.append(l[i][j])
-                        
-                        arr[counter,i+j]= l[i][j]
-                        
-                #print "DONE"
-                #print arr[counter]
-                print np.max(arr)
-                del l[:]
-                col=col+1
-                counter = counter+1
-               
-            row=row+1
-        print (np.array(l)).size
-        
-        print arr[566]
-        #plt.title('Label is {label}'.format(label=label))
-        #plt.imshow(arr, cmap='gray')
-        #plt.show()
-        print np.max(arr)
-        np.save('arr.npy', arr)
+        print pixels.size
+        index = np.load("index_array.npy") 
+        arr =  np.take(pixels, index)
         break
-        '''
+    print "Hello"
+
+
+####CODE for TAKE indexing     
+        
+'''
+
+arr = np.zeros(shape=(576,25), dtype= 'int64')
+
+row=0
+col=0
+counter = 0
+iteration = np.array([0,28,28*2,28*3,28*4])
+#arr[row][col] = 1
+index = 0
+
+while(row<576):
+    col=0
+    index = 0
+    initial = counter+1
+    while(col<25):
+        arr[row][col]= (counter+iteration[index])
+        print (counter+iteration[index])
+        if(counter==(initial+3)):
+            #print counter
+            counter = initial-1
+            index = index+1
+        else:
+            counter= counter+1
+        
+        col+=1
+    #break
+    row+=1
+    counter = initial
+
+np.save('index_array.npy', arr)
+#print np.max(arr)#[0][0]
+
+'''

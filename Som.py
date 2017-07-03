@@ -10,6 +10,7 @@ import tensorflow as tf
 import numpy as np, sys, gzip, cPickle
 import time,random
 import itertools
+import csv
 
 class SOM:
 	"""
@@ -113,6 +114,31 @@ class SOM:
 		"""
 		with tf.device(dev):
 			return self.weights.eval()
+    
+        def get_array(self, i):
+        	with open('mnist_test_10.csv', 'r') as csv_file:
+        	    for data in csv.reader(csv_file):
+        
+        	        self.arr=np.zeros((24*24,25), dtype='int64')
+        # The first column is the label
+        	        self.label = data[i]
+
+        # The rest of columns are pixels
+        	        self.pixels = data[1:]
+
+        # Make those columns into a array of 8-bits pixels
+        # This array will be of 1D with length 784
+        # The pixel intensity values are integers from 0 to 255
+        	        self.pixels = np.array(self.pixels, dtype='int64')
+        #print (pixels[0]).dtype
+        # Reshape the array into 28 x 28 array (2-dimensional array)
+        	        self.pixels = self.pixels.reshape((28, 28))
+        #print pixels.size
+        	        self.index = np.load("index_array.npy") 
+        	        self.arr =  np.take(self.pixels, self.index)
+        	        print "Array formed "
+        	        return self.arr
+        	        break    
 
 import argparse
 import json
@@ -128,8 +154,8 @@ parser.add_argument("map_size", help="Size of the output layer", type= int)
 args = parser.parse_args()
 
 
-data = np.load("arr.npy") 
 
+counter = 0
 #labels = trainl ;
 map_size=args.map_size
 dev=(args.device)
@@ -141,13 +167,17 @@ with g1.as_default() as g:
         
         num_training = args.iters
         s = SOM()
-        print num_training
+        
         batch_size = 24*24          #  args.batch_size
         flag = 0
         counter=0
      		#start_time=time.time()
              
     for i in range(0,num_training):
+        
+        data = s.get_array(counter)
+        counter = counter + 1
+        #np.load("arr.npy")
         if i==1:
         		print "real start!"
                         start_time=time.time()
