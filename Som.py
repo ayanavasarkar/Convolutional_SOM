@@ -115,13 +115,21 @@ class SOM:
 		with tf.device(dev):
 			return self.weights.eval()
     
-        def get_array(self, i):
-        	with open('mnist_test_10.csv', 'r') as csv_file:
+        def get_array(self, i, traind):
+
+		self.x = traind[i].reshape((28,28)) ; 
+       		self.index = np.load("index_array.npy") 
+        	self.arr =  np.take(self.x, self.index)
+        	print "Array formed "
+        	return self.arr
+        	
+'''
+		with open('/home/admin/MNIST_data/mnist_train.csv', 'r') as csv_file:
         	    for data in csv.reader(csv_file):
         
         	        self.arr=np.zeros((24*24,25), dtype='int64')
         # The first column is the label
-        	        self.label = data[i]
+        	        #self.label = data[i]
 
         # The rest of columns are pixels
         	        self.pixels = data[1:]
@@ -139,6 +147,7 @@ class SOM:
         	        print "Array formed "
         	        return self.arr
         	        break    
+'''
 
 import argparse
 import json
@@ -153,6 +162,8 @@ parser.add_argument("iters", help="Number of iterations",type=int)
 parser.add_argument("map_size", help="Size of the output layer", type= int)
 args = parser.parse_args()
 
+with gzip.open("/home/admin/MNIST_data/mnist.pkl.gz","rb") as f:
+	((traind,trainl),(vald,vall),(testd,testl)) = cPickle.load(f) ;
 
 
 counter = 0
@@ -161,6 +172,7 @@ map_size=args.map_size
 dev=(args.device)
 x=[]
 g1 = tf.Graph() 
+
 with g1.as_default() as g:
     with tf.device(dev):
         sess = tf.InteractiveSession(graph=g)
@@ -175,11 +187,12 @@ with g1.as_default() as g:
              
     for i in range(0,num_training):
         
-        data = s.get_array(counter)
+        data = s.get_array(counter, traind)
         counter = counter + 1
         #np.load("arr.npy")
+        print counter
         if i==1:
-        		print "real start!"
+        		#print "real start!"
                         start_time=time.time()
 		
         x=data[0:batch_size]

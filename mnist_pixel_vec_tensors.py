@@ -7,22 +7,37 @@ Created on Wed Jun 21 15:26:52 2017
 """
 
 import numpy as np
-import csv
+import csv, gzip, cPickle
 import matplotlib.pyplot as plt
 import argparse
+from matplotlib import pyplot as plt
 
+
+with gzip.open("/home/admin/MNIST_data/mnist.pkl.gz","rb") as f:
+  ((traind,trainl),(vald,vall),(testd,testl)) = cPickle.load(f) ;
+
+x = traind[0].reshape((28,28)) ;
+
+print x
+
+plt.imshow(x, interpolation='none')
+plt.show()
+
+
+
+'''
 parser = argparse.ArgumentParser()
 parser.add_argument("label", help="label of the MNIST dataset", type=int)
 args = parser.parse_args()
 
-i = args.label
+i = args.label 
 
 with open('mnist_test_10.csv', 'r') as csv_file:
     for data in csv.reader(csv_file):
         
         arr=np.zeros((24*24,25), dtype='int64')
         # The first column is the label
-        label = data[i]
+        #label = data[]
 
         # The rest of columns are pixels
         pixels = data[1:]
@@ -34,16 +49,18 @@ with open('mnist_test_10.csv', 'r') as csv_file:
         #print (pixels[0]).dtype
         # Reshape the array into 28 x 28 array (2-dimensional array)
         pixels = pixels.reshape((28, 28))
-        print pixels.size
+        #print pixels.size
         index = np.load("index_array.npy") 
-        arr =  np.take(pixels, index)
-        break
+        plt.imshow(pixels, interpolation='none')
+        plt.show()
+        #arr =  np.take(pixels, index)
+        #break
     print "Hello"
 
 
 ####CODE for TAKE indexing     
         
-'''
+
 
 arr = np.zeros(shape=(576,25), dtype= 'int64')
 
