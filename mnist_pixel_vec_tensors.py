@@ -9,23 +9,18 @@ Created on Wed Jun 21 15:26:52 2017
 import numpy as np
 import csv, gzip, cPickle
 import matplotlib.pyplot as plt
-import argparse
+import argparse, cv2
 from matplotlib import pyplot as plt
+from PIL import Image
 
-
+'''
 with gzip.open("/home/admin/MNIST_data/mnist.pkl.gz","rb") as f:
   ((traind,trainl),(vald,vall),(testd,testl)) = cPickle.load(f) ;
 
 x = traind[0].reshape((28,28)) ;
 
-print x
-
-plt.imshow(x, interpolation='none')
-plt.show()
 
 
-
-'''
 parser = argparse.ArgumentParser()
 parser.add_argument("label", help="label of the MNIST dataset", type=int)
 args = parser.parse_args()

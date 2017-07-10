@@ -118,9 +118,11 @@ class SOM:
         def get_array(self, i, traind):
 
 		self.x = traind[i].reshape((28,28)) ; 
-       		self.index = np.load("index_array.npy") 
+       		self.index = np.load("index_array.npy")
+        
         	self.arr =  np.take(self.x, self.index)
-        	print "Array formed "
+        
+        	#print "Array formed "
         	return self.arr
         	
 '''
@@ -153,6 +155,7 @@ import argparse
 import json
 import os
 from collections import OrderedDict
+from random import randint
 
 
 parser = argparse.ArgumentParser()
@@ -160,6 +163,7 @@ parser = argparse.ArgumentParser()
 parser.add_argument("device", help="GPU or CPU")
 parser.add_argument("iters", help="Number of iterations",type=int)
 parser.add_argument("map_size", help="Size of the output layer", type= int)
+#parser.add_argument("patch_size", help="Patch Size of the Convolutional Layer", type= int)
 args = parser.parse_args()
 
 with gzip.open("/home/admin/MNIST_data/mnist.pkl.gz","rb") as f:
@@ -186,25 +190,25 @@ with g1.as_default() as g:
      		#start_time=time.time()
              
     for i in range(0,num_training):
-        
+        #counter = randint(0, 50000)
         data = s.get_array(counter, traind)
         counter = counter + 1
-        #np.load("arr.npy")
+       
         print counter
         if i==1:
         		#print "real start!"
-                        start_time=time.time()
+                start_time=time.time()
 		
-        x=data[0:batch_size]
-        print x.shape
+        x=data#[0:batch_size]
+        #print x.shape
         x=np.expand_dims(x, axis=1)
-        print x.shape
+        #print x.shape
         s.graph_distance_and_update((25,), map_size, num_training, sess, x, batch_size, flag)
         #s.graph_distance_and_update((784,), map_size, num_training, sess, x, batch_size, flag)
         flag=flag+1
 
 final=time.time() - start_time
-
+print final
 weights  = s.get_weights()
 print weights.shape
 np.savez("som.npz", weights[0,:,:]) ;

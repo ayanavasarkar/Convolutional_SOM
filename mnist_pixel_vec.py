@@ -19,7 +19,7 @@ final = []
 
 with open('mnist_test_10.csv', 'r') as csv_file:
     for data in csv.reader(csv_file):
-        tf.InteractiveSession()
+        #tf.InteractiveSession()
         arr=np.zeros((24*24,25), dtype='int')
         # The first column is the label
         label = data[0]
@@ -34,24 +34,28 @@ with open('mnist_test_10.csv', 'r') as csv_file:
         #print (pixels[0]).dtype
         # Reshape the array into 28 x 28 array (2-dimensional array)
         pixels = pixels.reshape((28, 28))
-        arg = tf.convert_to_tensor(pixels, dtype=tf.int64)
+        plt.imshow(pixels, interpolation='none')
+        plt.show()
+        #arg = tf.convert_to_tensor(pixels, dtype=tf.int64)
         
         #with tf.Session() as sess:
-
-         #   print (sess.run(arg))
-        # Plot
-        
+        patch_size = 10
         counter = 0
         while(row<24):
             col=0
             while(col<24):
-                l=(pixels[row:row+5, col:col+5]).tolist()
+                l=(pixels[row:row+patch_size, col:col+patch_size]).tolist()
+                #plt.imshow(pixels[row:row+5, col:col+5], interpolation='none')
+                #plt.show()
                 #print len(l)
-                for i in range(0,5):
-                    for j in range(0,5):
+                for i in range(0,patch_size):
+                    for j in range(0,patch_size):
                                                 
                         arr[counter,i+j]= l[i][j]
-                        
+                x = arr[col]
+                print x.shape
+                #plt.imshow(x, interpolation='none')
+                #plt.show()       
                 #print arr[counter]
                 #print np.max(arr)
                 del l[:]
@@ -65,5 +69,5 @@ with open('mnist_test_10.csv', 'r') as csv_file:
         #plt.imshow(arr, cmap='gray')
         #plt.show()
         print (arr.shape)
-        np.save('arr.npy', arr)
+        #np.save('arr.npy', arr)
         break
