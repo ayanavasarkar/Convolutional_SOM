@@ -6,10 +6,55 @@ Created on Wed Jun 21 15:26:52 2017
 @author: ayanava
 """
 
-import numpy as np
-import csv
+import numpy as np, csv
 import matplotlib.pyplot as plt
-import tensorflow as tf
+import matplotlib.gridspec as gridspec
+from matplotlib.backends.backend_pdf import PdfPages
+
+
+x = np.load('arr_7.npy')
+#arr = np.zeros(shape=(576,25), dtype= 'int64')
+print x.shape
+print x[500]
+
+gs = gridspec.GridSpec(24, 24, top=1., bottom=0., right=1., left=0., hspace=0., wspace=0.)
+c=0
+
+for g in gs:
+    
+    ax = plt.subplot(g)
+    a = np.reshape(x[c, :],(5,5))
+    plt.imshow(a)
+    c = c + 1
+    plt.show()
+    
+    #ax.set_aspect('auto')
+    
+
+'''
+
+
+#img = mimage.imread('/home/admin/Convolutional_SOM/patches/'+str(row)+'_'+str(col)+'.png')
+
+pdf = PdfPages( 'test.pdf' )
+gs = gridspec.GridSpec(120, 120, top=1., bottom=0., right=1., left=0., hspace=0.,
+        wspace=0.)
+
+c = 0
+
+for g in gs:
+    
+    ax = plt.subplot(g)
+    ax.imshow('~/home/admin/Convolutional_SOM/patches/'+str(c)+'.jpg')
+    ax.set_xticks([])
+    ax.set_yticks([])
+    ax.set_aspect('auto')
+    c = c +1
+
+pdf.savefig()
+pdf.close()
+
+
 
 row = 0
 col = 0
@@ -44,30 +89,23 @@ with open('mnist_test_10.csv', 'r') as csv_file:
         while(row<24):
             col=0
             while(col<24):
-                l=(pixels[row:row+patch_size, col:col+patch_size]).tolist()
+                l=(pixels[row:row+5, col:col+5]).tolist()
                 #plt.imshow(pixels[row:row+5, col:col+5], interpolation='none')
-                #plt.show()
+                #plt.savefig('/home/admin/Convolutional_SOM/patches/'+str(counter)+'.jpg')
+                
                 #print len(l)
-                for i in range(0,patch_size):
-                    for j in range(0,patch_size):
+                for i in range(0,5):
+                    for j in range(0,5):
                                                 
                         arr[counter,i+j]= l[i][j]
-                x = arr[col]
-                print x.shape
-                #plt.imshow(x, interpolation='none')
-                #plt.show()       
-                #print arr[counter]
-                #print np.max(arr)
+                                
                 del l[:]
                 col=col+1
                 counter = counter+1
                     
             row=row+1
         
-        #print arr[566]
-        #plt.title('Label is {label}'.format(label=label))
-        #plt.imshow(arr, cmap='gray')
-        #plt.show()
-        print (arr.shape)
-        #np.save('arr.npy', arr)
+        
+        np.save('arr_7.npy', arr)
         break
+'''

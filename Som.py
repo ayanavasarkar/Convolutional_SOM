@@ -124,6 +124,7 @@ class SOM:
         
         	#print "Array formed "
         	return self.arr
+            
         	
 '''
 		with open('/home/admin/MNIST_data/mnist_train.csv', 'r') as csv_file:
@@ -200,9 +201,9 @@ with g1.as_default() as g:
                 start_time=time.time()
 		
         x=data#[0:batch_size]
-        #print x.shape
+        print x.shape
         x=np.expand_dims(x, axis=1)
-        #print x.shape
+        print x.shape
         s.graph_distance_and_update((25,), map_size, num_training, sess, x, batch_size, flag)
         #s.graph_distance_and_update((784,), map_size, num_training, sess, x, batch_size, flag)
         flag=flag+1

@@ -13,6 +13,39 @@ import argparse, cv2
 from matplotlib import pyplot as plt
 from PIL import Image
 
+arr = np.zeros(shape=(576,25), dtype= 'int64')
+
+row=0
+col=0
+counter = 0
+iteration = np.array([0,28,28*2,28*3,28*4])
+#arr[row][col] = 1
+index = 0
+
+while(row<576):
+    col=0
+    index = 0
+    initial = counter+1
+    while(col<25):
+        arr[row][col]= (counter+iteration[index])
+        print (counter+iteration[index])
+        if(counter==(initial+3)):
+            #print counter
+            counter = initial-1
+            index = index+1
+        else:
+            counter= counter+1
+        
+        col+=1
+    #break
+    row+=1
+    counter = initial
+
+np.save('index_array.npy', arr)
+#print np.max(arr)#[0][0]
+
+
+
 '''
 with gzip.open("/home/admin/MNIST_data/mnist.pkl.gz","rb") as f:
   ((traind,trainl),(vald,vall),(testd,testl)) = cPickle.load(f) ;
