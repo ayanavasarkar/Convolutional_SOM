@@ -94,7 +94,7 @@ class SOM:
 			self.lr_times_neigh = tf.multiply( self.alpha_tmp, self.distances )
 			#self.lr_times_neigh = tf.expand_dims(self.lr_times_neigh, 2)
 			self.lr_times_neigh = tf.tile(self.lr_times_neigh, (1,)+self.input_shape )
-			self.lr_times_neigh = tf.reshape(self.lr_times_neigh,[self.batch_size,self.n*self.n,25])
+			self.lr_times_neigh = tf.reshape(self.lr_times_neigh,[self.batch_size,self.n*self.n,784])
 			self.delta_w = self.lr_times_neigh * self.diff
 			#self.delta_w = tf.expand_dims(tf.reduce_sum (self.delta_w, axis=0),0) ;
 			
@@ -117,13 +117,13 @@ class SOM:
     
         def get_array(self, i, traind):
 
-		self.x = traind[i].reshape((28,28)) ; 
-       		self.index = np.load("index_array.npy")
+		self.x = traind[i].reshape((784,)) ;#28x28 
+       		#self.index = np.load("index_array.npy")
         
-        	self.arr =  np.take(self.x, self.index)
+        	#self.arr =  np.take(self.x, self.index)
         
         	#print "Array formed "
-        	return self.arr
+        	return self.x
             
         	
 '''
@@ -153,9 +153,6 @@ class SOM:
 '''
 
 import argparse
-import json
-import os
-from collections import OrderedDict
 from random import randint
 
 
@@ -185,26 +182,27 @@ with g1.as_default() as g:
         num_training = args.iters
         s = SOM()
         
-        batch_size = 24*24          #  args.batch_size
+        batch_size = 784#24*24          #  args.batch_size
         flag = 0
         counter=0
-     		#start_time=time.time()
+        start_time=time.time()
              
     for i in range(0,num_training):
-        #counter = randint(0, 50000)
+        #counter = randint(0, 10)
         data = s.get_array(counter, traind)
-        counter = counter + 1
+        #counter = 1
        
-        print counter
+        #print counter
         if i==1:
         		#print "real start!"
                 start_time=time.time()
 		
         x=data#[0:batch_size]
-        print x.shape
-        x=np.expand_dims(x, axis=1)
-        print x.shape
-        s.graph_distance_and_update((25,), map_size, num_training, sess, x, batch_size, flag)
+        #print x.shape                      Shape is [rows, cols]
+        x=np.expand_dims(x, axis=0)
+        x=np.expand_dims(x, axis=0)
+        #print x.shape                   Final shape should be [rows, 1, no. of cols]
+        s.graph_distance_and_update((784,), map_size, num_training, sess, x, batch_size, flag)
         #s.graph_distance_and_update((784,), map_size, num_training, sess, x, batch_size, flag)
         flag=flag+1
 
