@@ -7,15 +7,15 @@ Created on Mon Jun 26 12:19:52 2017
 """
 
 import tensorflow as tf
-import numpy as np, sys, gzip, cPickle
-import time,random
-import itertools
+import numpy as np, gzip, cPickle
+import time
 import csv
 
 class SOM:
 	"""
-	Efficient implementation of Kohonen Self-Organizing maps using Tensorflow.
+	Implementation of Convolutional Self-Organizing maps using Tensorflow.
 
+    device: GPU or CPU
 	map_size_n: size of the (square) map
 	num_expected_iterations: number of iterations to be used during training. This parameter is used to derive good parameters for the learning rate and the neighborhood radius.
 	"""
@@ -191,12 +191,7 @@ with g1.as_default() as g:
         #counter = randint(0, 10)
         data = s.get_array(counter, traind)
         #counter = 1
-       
         #print counter
-        if i==1:
-        		#print "real start!"
-                start_time=time.time()
-		
         x=data#[0:batch_size]
         #print x.shape                      Shape is [rows, cols]
         x=np.expand_dims(x, axis=0)
@@ -212,8 +207,6 @@ weights  = s.get_weights()
 print weights.shape
 np.savez("som.npz", weights[0,:,:]) ;
 
-
 # visualize to png file later with 
 # python visWeights.py som.npz 1 10 10 28 3
 # this creates a file w.png thatn you can view with eog
-
