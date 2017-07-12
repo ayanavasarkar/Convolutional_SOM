@@ -182,7 +182,7 @@ with g1.as_default() as g:
         num_training = args.iters
         s = SOM()
         
-        batch_size = 784#24*24
+        batch_size = 784   #24*24
         flag = 0
         counter=0
         start_time=time.time()
