@@ -6,8 +6,7 @@ Created on Wed Jul 12 11:20:52 2017
 @author: ayanava
 """
 
-import numpy as np
-import csv, gzip, cPickle
+import gzip, cPickle
 import matplotlib.pyplot as plt
 
 

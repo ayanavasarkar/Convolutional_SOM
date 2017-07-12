@@ -212,6 +212,7 @@ weights  = s.get_weights()
 print weights.shape
 np.savez("som.npz", weights[0,:,:]) ;
 
+
 # visualize to png file later with 
 # python visWeights.py som.npz 1 10 10 28 3
 # this creates a file w.png thatn you can view with eog
