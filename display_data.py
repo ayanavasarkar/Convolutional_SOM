@@ -13,8 +13,13 @@ import matplotlib.pyplot as plt
 with gzip.open("/home/admin/MNIST_data/mnist.pkl.gz","rb") as f:
   ((traind,trainl),(vald,vall),(testd,testl)) = cPickle.load(f) ;
 
+x = traind[200].reshape((28,28)) ;
+plt.imshow(x, interpolation='none')
+plt.show()
+'''
 for i in range(0,100):
     
     x = traind[i].reshape((28,28)) ;
     plt.imshow(x, interpolation='none')
     plt.show()
+    '''

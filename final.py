@@ -7,8 +7,8 @@ Created on Thu Jul 13 15:38:44 2017
 """
 
 import tensorflow as tf
-import numpy as np, gzip, cPickle
-import time, math
+import numpy as np, sys, gzip, cPickle
+import time,random,math
 
 
 class SOM:
@@ -140,25 +140,28 @@ class SOM:
              #self.y = traind[i].reshape((28,28))
              #plt.imshow(self.y, interpolation='none')
              #plt.show()
-	        #self.x = traind[i].reshape((784,))
-		#return self.x
-		self.x = traind[i]
-		self.index = np.load("index_array.npy")
+	        self.x = traind[i].reshape((784,))
+		return self.x
+		#self.x = traind[i]
+		#self.index = np.load("index_array.npy")
         
-        	self.arr =  np.take(self.x, self.index)
+        	#self.arr =  np.take(self.x, self.index)
         
         	#print "Array formed "
-		return self.arr
+		#return self.arr
             
             
 
 import argparse
+import json
+import os
+from collections import OrderedDict
 from random import randint
 
 parser = argparse.ArgumentParser()
 #parser.add_argument("mnist", help="mnist path")
 parser.add_argument("device", help="GPU or CPU")
-#parser.add_argument("batch_size", help="Number of samples per iteration",type=int)
+parser.add_argument("batch_size", help="Number of samples per iteration",type=int)
 parser.add_argument("map_size", help="Size of the output layer", type= int)
 args = parser.parse_args()
 
@@ -181,12 +184,12 @@ with g1.as_default() as g:
 	with tf.device(dev):
 		sess = tf.InteractiveSession(graph=g)
         
-		num_training = 100
+		num_training = 3000
 		s = SOM()
 
 		#sess.run(tf.global_variables_initializer())
         
-		batch_size = 576 #24*24
+		batch_size = args.batch_size
 		flag = 0
 		counter=0
         	
@@ -195,10 +198,9 @@ with g1.as_default() as g:
                           start_time=time.time()
                 	counter = randint(0, 100)
 		        data = s.get_array(counter, traind)
-			#print data.shape
-            
-			data=np.expand_dims(data, axis=1)
-			#data=np.expand_dims(data, axis=0)
+			print data.shape
+			data=np.expand_dims(data, axis=0)
+			data=np.expand_dims(data, axis=0)
 			print data.shape
                         #arr = data[i:i+batch_size,np.newaxis,:] ;
 			#change the following to arr.shape for the original SOM implementation
@@ -208,9 +210,7 @@ with g1.as_default() as g:
 print ("FINAL TIME--- %s seconds ---" % (time.time() - start_time))
 
 weights  = s.get_weights()
-print weights.shape
-#x = np.squeeze(weights)
-#print x[0]
+#print weights.shape
 np.savez("som.npz", weights[0,:,:]) ;
 
 # visualize to png file later with 
