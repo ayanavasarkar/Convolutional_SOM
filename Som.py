@@ -202,7 +202,7 @@ with tf.device(dev):
 	s = SOM()
 
 	#sess.run(tf.global_variables_initializer())
-        batch_size = (args.batch_size)
+        #batch_size = (args.batch_size)
 	total_patches = 576 #24*24
 	flag = 0
 	counter=0
@@ -217,18 +217,19 @@ with tf.device(dev):
 		data=np.expand_dims(data, axis=1)
 		#data=np.expand_dims(data, axis=0)
 		#print data.shape
-                       #arr = data[i:i+batch_size,np.newaxis,:] ;
+                arr = data[i:i+batch_size,np.newaxis,:] ;
+		print arr.shape
 		#change the following to arr.shape for the original SOM implementation
-		s.graph_distance_and_update(data.shape, map_size, num_training/2, 1.0, 0.05, sess, data, flag)
+		#s.graph_distance_and_update(data.shape, map_size, num_training/2, 1.0, 0.05, sess, data, flag)
 		flag=flag+1
          	dis = s.get_distances()
 		dist = np.array(dis)
 		dist = np.squeeze(dist)
-		print ("Before reshape")
-            	print (dist.shape)
+		#print ("Before reshape")
+            	#print (dist.shape)
 		dist = np.reshape(dist, (24, 24, map_size*map_size))
-		print ("After reshape")
-            	print (dist.shape)
+		#print ("After reshape")
+            	#print (dist.shape)
 
 print ("FINAL TIME--- %s seconds ---" % (time.time() - start_time))
 
@@ -237,7 +238,7 @@ print weights.shape
 #x = np.squeeze(weights)
 #print x[0]
 
-np.savez("som.npz", weights[0,:,:]) ;
+#np.savez("som.npz", weights[0,:,:]) ;
 
 ##### Execution steps #####
 
