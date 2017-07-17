@@ -175,7 +175,7 @@ from random import randint
 parser = argparse.ArgumentParser()
 #parser.add_argument("mnist", help="mnist path")
 parser.add_argument("device", help="GPU or CPU")
-#parser.add_argument("batch_size", help="Number of samples per iteration",type=int)
+parser.add_argument("batch_size", help="Number of samples per iteration",type=int)
 parser.add_argument("map_size", help="Size of the output layer", type= int)
 args = parser.parse_args()
 
@@ -188,7 +188,7 @@ with gzip.open("/home/admin/MNIST_data/mnist.pkl.gz","rb") as f:
 
 inpDim = traind.shape[1] ;
   
-data = traind; 
+#data = traind; 
 #labels = trainl ;
 dev=(args.device)
 map_size=args.map_size
@@ -198,18 +198,18 @@ map_size=args.map_size
 with tf.device(dev):
 	#sess = tf.InteractiveSession(graph=g)
         sess = tf.InteractiveSession()
-	num_training = 10
+	num_training = 1000
 	s = SOM()
 
 	#sess.run(tf.global_variables_initializer())
-        #batch_size = (args.batch_size)
+        batch_size = (args.batch_size)
 	total_patches = 576 #24*24
 	flag = 0
 	counter=0
-        	
+        start_time=time.time()
+
 	for i in range(num_training):
-		#if i==1:
-	        start_time=time.time()
+			        
                	counter = randint(0, 100)
 	        data = s.get_array(counter, traind)
 		#print data.shape
@@ -217,10 +217,11 @@ with tf.device(dev):
 		data=np.expand_dims(data, axis=1)
 		#data=np.expand_dims(data, axis=0)
 		#print data.shape
-                arr = data[i:i+batch_size,np.newaxis,:] ;
-		print arr.shape
+                #arr = traind[i:i+batch_size,np.newaxis,:] ;
+		#print arr.shape
+
 		#change the following to arr.shape for the original SOM implementation
-		#s.graph_distance_and_update(data.shape, map_size, num_training/2, 1.0, 0.05, sess, data, flag)
+		s.graph_distance_and_update(data.shape, map_size, num_training/2, 1.0, 0.05, sess, data, flag)
 		flag=flag+1
          	dis = s.get_distances()
 		dist = np.array(dis)
@@ -238,7 +239,7 @@ print weights.shape
 #x = np.squeeze(weights)
 #print x[0]
 
-#np.savez("som.npz", weights[0,:,:]) ;
+np.savez("som.npz", weights[0,:,:]) ;
 
 ##### Execution steps #####
 
