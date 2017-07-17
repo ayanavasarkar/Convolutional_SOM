@@ -4,6 +4,13 @@
 Created on Thu Jul 13 15:38:44 2017
 
 @author: ayanava
+
+ now the output of the som needs to be re-packaged, 
+ ie each little SOMs activbities need to be tiled into a big image again.
+Lets say each little SOM has kxk neurons, and there are 24x24 patches, 
+then for each patch there is a kxk matrix of distances.
+If you arrange these kxk matrices in the order of the origibnal patches, you get an image of dimension (24k)x(24k).
+
 """
 
 import tensorflow as tf
@@ -21,20 +28,21 @@ class SOM:
 	def __init__(self):
           pass;	
 
-
         """
           tInf: time at which params should be converged. Take half the # of iterations
           sigmaInf: asymptotic value of sigma at tInf. Can use 1.0 for the time b eing
           alphaInf: asymptic learning rate at tInf. Can use 0.05 for the time being
         """
+
 	def graph_distance_and_update(self, input_shape, map_size_n, tInf, sigmaInf, alphaInf, sess, input_x,  iteration ):
 		if(iteration==0):
 	
 	  		#print ("Time after Weight init--- %s seconds ---" % (time.time() - start_time))
                 	input_shape = input_shape#tuple([i for i in input_shape if i is not None])
-
+			self.input_x = input_x
+			self.iter = iteration
 			self.input_shape = input_shape
-                        print "inputs", input_shape
+                        #print "inputs", tInf
 			self.sigma_act = tf.constant( 1.0) ;
 
 			self.n = map_size_n
@@ -45,18 +53,19 @@ class SOM:
 			self.alpha0 = tf.constant( alpha0,dtype=tf.float32 ) ;
 			self.alphaInf = tf.constant( alphaInf,dtype=tf.float32 ) ;
 			self.tInf = tf.constant( tInf, dtype=tf.float32 ) ;
+
+			
 			self.timeconst_alpha = tf.constant( -math.log(alphaInf/alpha0)/tInf, dtype=tf.float32) #2/6
 	
                         sigma0 = self.n/4. ;
                         self.sigmaInf = tf.constant(sigmaInf,dtype=tf.float32);
 			self.sigma0 = tf.constant( sigma0,dtype=tf.float32 ) #self.n/2.0
-			self.timeconst_sigma = tf.constant( -math.log(sigmaInf/sigma0)/tInf,dtype=tf.float32 ) ;
-
-                        self.bs = tf.constant(input_x.shape[0],dtype=tf.float32) ;
-
-	
 			
-			print"STARTING"
+			self.timeconst_sigma = tf.constant( -math.log(sigmaInf/sigma0)/tInf,dtype=tf.float32 )
+			
+                        self.bs = tf.constant(input_x.shape[0],dtype=tf.float32) ;
+			
+			
 		  	# Pre-initialize neighborhood function's data for efficiency
                         # important: make it float32 since numpy default is float64
 			self.row_indices = np.zeros((self.n, self.n), dtype="float32")
@@ -102,8 +111,9 @@ class SOM:
                 
 			self.diff= tf.subtract(self.input_placeholder,self.weights)
 			self.diff_sq = tf.square(self.diff)
-			self.diff_sum = tf.reduce_sum( self.diff_sq, axis=2)
-			
+			self.diff_sum = tf.reduce_sum( self.diff_sq, axis=2)	#Take this
+			#print self.diff_sum.op	#prints the operation performed and the attributes
+
 			# Get the index of the best matching unit
 	     		self.bmu_index = tf.argmin(self.diff_sum, 1) ;
                 	
@@ -117,14 +127,15 @@ class SOM:
 			self.delta_w = tf.expand_dims(tf.reduce_sum (self.delta_w_batch, axis=0),0) ;
 
 			self.update_weights = tf.assign_add(self.weights, self.delta_w)
-                        print self.update_weights.op
+                        #print self.update_weights.op
                         	
  		if(iteration==0):
        			tf.global_variables_initializer().run()
 
+		#return (self.session.run([self.diff_sum.op], {self.input_placeholder:input_x, self.current_iteration:iteration}))
 		self.session.run([self.update_weights.op], {self.input_placeholder:input_x, self.current_iteration:iteration})                
-                         
-                
+		
+    
 
 	def get_weights(self):
 		"""
@@ -132,6 +143,12 @@ class SOM:
 		"""
 		return self.weights.eval()
     
+	def get_distances(self):
+        	"""
+		Returns the distances.
+		"""
+		#distances = self.session.run([self.distances], {self.input_placeholder:input_x})#, self.current_iteration:self.num_iterations
+        	return self.session.run([self.diff_sum], {self.input_placeholder:self.input_x, self.current_iteration:self.iter})
         
     
 	def get_array(self, i, traind):
@@ -176,34 +193,42 @@ data = traind;
 dev=(args.device)
 map_size=args.map_size
 
-g1 = tf.Graph() 
-with g1.as_default() as g:
-	with tf.device(dev):
-		sess = tf.InteractiveSession(graph=g)
-        
-		num_training = 100
-		s = SOM()
+#g1 = tf.Graph() 
+#with g1.as_default() as g:
+with tf.device(dev):
+	#sess = tf.InteractiveSession(graph=g)
+        sess = tf.InteractiveSession()
+	num_training = 10
+	s = SOM()
 
-		#sess.run(tf.global_variables_initializer())
-        
-		batch_size = 576 #24*24
-		flag = 0
-		counter=0
+	#sess.run(tf.global_variables_initializer())
+        batch_size = (args.batch_size)
+	total_patches = 576 #24*24
+	flag = 0
+	counter=0
         	
-		for i in range(num_training):
-                        if i==1:
-                          start_time=time.time()
-                	counter = randint(0, 100)
-		        data = s.get_array(counter, traind)
-			#print data.shape
+	for i in range(num_training):
+		#if i==1:
+	        start_time=time.time()
+               	counter = randint(0, 100)
+	        data = s.get_array(counter, traind)
+		#print data.shape
             
-			data=np.expand_dims(data, axis=1)
-			#data=np.expand_dims(data, axis=0)
-			print data.shape
-                        #arr = data[i:i+batch_size,np.newaxis,:] ;
-			#change the following to arr.shape for the original SOM implementation
-			s.graph_distance_and_update(data.shape, map_size, num_training/2, 1.0, 0.05, sess, data, flag)
-			flag=flag+1
+		data=np.expand_dims(data, axis=1)
+		#data=np.expand_dims(data, axis=0)
+		#print data.shape
+                       #arr = data[i:i+batch_size,np.newaxis,:] ;
+		#change the following to arr.shape for the original SOM implementation
+		s.graph_distance_and_update(data.shape, map_size, num_training/2, 1.0, 0.05, sess, data, flag)
+		flag=flag+1
+         	dis = s.get_distances()
+		dist = np.array(dis)
+		dist = np.squeeze(dist)
+		print ("Before reshape")
+            	print (dist.shape)
+		dist = np.reshape(dist, (24, 24, map_size*map_size))
+		print ("After reshape")
+            	print (dist.shape)
 
 print ("FINAL TIME--- %s seconds ---" % (time.time() - start_time))
 
@@ -211,7 +236,10 @@ weights  = s.get_weights()
 print weights.shape
 #x = np.squeeze(weights)
 #print x[0]
+
 np.savez("som.npz", weights[0,:,:]) ;
+
+##### Execution steps #####
 
 # visualize to png file later with 
 # python visWeights.py som.npz 1 10 10 28 3
