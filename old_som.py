@@ -30,11 +30,11 @@ class SOM:
 
         """
           tInf: time at which params should be converged. Take half the # of iterations
-          sigmaInf: asymptotic value of sigma at tInf. Can use 1.0 for the time being
+          sigmaInf: asymptotic value of sigma at tInf. Can use 1.0 for the time b eing
           alphaInf: asymptic learning rate at tInf. Can use 0.05 for the time being
         """
 
-	def graph_distance_and_update(self, input_shape, map_size_n, batch_size, tInf, sigmaInf, alphaInf, sess, input_x,  iteration ):
+	def graph_distance_and_update(self, input_shape, map_size_n, tInf, sigmaInf, alphaInf, sess, input_x,  iteration ):
 		if(iteration==0):
 	
 	  		#print ("Time after Weight init--- %s seconds ---" % (time.time() - start_time))
@@ -42,11 +42,11 @@ class SOM:
 			self.input_x = input_x
 			self.iter = iteration
 			self.input_shape = input_shape
-                        print "inputs", input_shape[3]
+                        print "inputs", input_shape[2]
 			self.sigma_act = tf.constant( 1.0) ;
 
 			self.n = map_size_n
-			self.batch_size = batch_size
+			
 			self.session = sess
 
                         alpha0=0.1; 
@@ -91,10 +91,9 @@ class SOM:
                         # this takes 31 secs for 100x100xbs1
 			#self.dist=tf.add(self.X_pow,self.Y_pow) ;
 
-			self.weights = tf.Variable( tf.random_uniform(( 1, 1, self.n*self.n,self.input_shape[3]), 0.0, 1.0) ) 			
-			
-			#self.weights = tf.tile(self.weights, self.batch_size)
-			self.input_placeholder = tf.placeholder(tf.float32, shape=(self.batch_size, None, 1, None))
+			self.weights = tf.Variable( tf.random_uniform((1, self.n*self.n,self.input_shape[2]), 0.0, 1.0) ) 			
+	
+			self.input_placeholder = tf.placeholder(tf.float32, shape=(None, 1, None))
 			self.current_iteration = tf.placeholder(tf.float32)
 			self.sigma_tmp = tf.cond(self.current_iteration < self.tInf, 
                                                  lambda: self.sigma0,
@@ -109,8 +108,7 @@ class SOM:
                                                  lambda: self.alphaInf/self.bs,
                                                  lambda: self.alpha_tmp/self.bs) ;
 
-                	self.a_shape = tf.shape(self.alpha_tmp)
-			print self.a_shape
+                
 			self.diff= tf.subtract(self.input_placeholder,self.weights)
 			self.diff_sq = tf.square(self.diff)
 			self.diff_sum = tf.reduce_sum( self.diff_sq, axis=2)	#Take this
@@ -130,7 +128,7 @@ class SOM:
 
 			self.update_weights = tf.assign_add(self.weights, self.delta_w)
                         #print self.update_weights.op
-                        
+                        	
  		if(iteration==0):
        			tf.global_variables_initializer().run()
 
@@ -153,7 +151,7 @@ class SOM:
         	return self.session.run([self.diff_sum], {self.input_placeholder:self.input_x, self.current_iteration:self.iter})
         
     
-	def get_array(self, arr):
+	def get_array(self, i, traind):
              #self.nu = i
              #print self.nu
              #self.y = traind[i].reshape((28,28))
@@ -161,7 +159,7 @@ class SOM:
              #plt.show()
 	        #self.x = traind[i].reshape((784,))
 		#return self.x
-		self.x = arr
+		self.x = traind[i]
 		#print self.x.shape --- (784,)
 		self.index = np.load("index_array.npy")
         
@@ -197,7 +195,7 @@ dev=(args.device)
 map_size=args.map_size
 batch_size = (args.batch_size)
 
-data = np.zeros((batch_size, 576 , 25))
+#data = np.zeros((batch_size, 576 , 25))
 
 #g1 = tf.Graph() 
 #with g1.as_default() as g:
@@ -217,20 +215,19 @@ with tf.device(dev):
 	for i in range(num_training):
 			        
                	counter = randint(0, 100)
-		arr = traind[counter:counter+batch_size]
+		#arr = traind[counter:counter+batch_size]
 		#print arr[0].shape
-		for j in range(0, batch_size):
-
-		        data[j] = s.get_array(arr[j])
+		#for j in range(0, batch_size):
+		data = s.get_array(counter, traind)
 			            
-		data=np.expand_dims(data, axis=2)
+		data=np.expand_dims(data, axis=1)
 		#data=np.expand_dims(data, axis=0)
 		print data.shape
                 #arr = traind[i:i+batch_size,np.newaxis,:] ;
 		
 
 		#change the following to arr.shape for the original SOM implementation
-		s.graph_distance_and_update(data.shape, map_size, batch_size, num_training/2, 1.0, 0.05, sess, data, flag)
+		s.graph_distance_and_update(data.shape, map_size, num_training/2, 1.0, 0.05, sess, data, flag)
 		flag=flag+1
          	dis = s.get_distances()
 		dist = np.array(dis)
