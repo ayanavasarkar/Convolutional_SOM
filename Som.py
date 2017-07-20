@@ -42,18 +42,17 @@ class SOM:
 			self.input_x = input_x
 			self.iter = iteration
 			self.input_shape = input_shape
-                        print "inputs", input_shape[3]
+                        #print "inputs", input_shape[3]
 			self.sigma_act = tf.constant( 1.0) ;
-
+			
 			self.n = map_size_n
 			self.batch_size = batch_size
 			self.session = sess
-
+			#print "fff", map_size_n, (tf.shape(self.n))
                         alpha0=0.1; 
 			self.alpha0 = tf.constant( alpha0,dtype=tf.float32 ) ;
 			self.alphaInf = tf.constant( alphaInf,dtype=tf.float32 ) ;
 			self.tInf = tf.constant( tInf, dtype=tf.float32 ) ;
-
 			
 			self.timeconst_alpha = tf.constant( -math.log(alphaInf/alpha0)/tInf, dtype=tf.float32) #2/6
 	
@@ -70,29 +69,32 @@ class SOM:
                         # important: make it float32 since numpy default is float64
 			self.row_indices = np.zeros((self.n, self.n), dtype="float32")
 			self.col_indices = np.zeros((self.n, self.n),dtype="float32")
+			
 			for r in range(self.n):
 			  for c in range(self.n):
 			    self.row_indices[r, c] = r
 			    self.col_indices[r, c] = c
+			
 		  	self.n_square=(self.n*self.n)
+			
 			self.r_x = tf.reshape(self.row_indices, [self.n_square,1])
 			self.r_y= tf.reshape(self.row_indices, [1,self.n_square])
 			self.X_sub=tf.subtract(self.r_x,self.r_y)
 		  	self.X_pow=tf.pow(self.X_sub,2)
-		
-
+			
 			self.c_x = tf.reshape(self.col_indices, [self.n_square,1])
 			self.c_y = tf.reshape(self.col_indices, [1,self.n_square])
 			self.Y_sub=tf.subtract(self.c_x,self.c_y)
 			self.Y_pow=tf.pow(self.Y_sub,2)
-
+			
                         # this takes 12 secs for 100x100xbs1
 			self.dist=tf.Variable(tf.add(self.X_pow,self.Y_pow)) ;
-                        # this takes 31 secs for 100x100xbs1
+			#self.dist = self.X_pow + self.Y_pow
+			
+	                # this takes 31 secs for 100x100xbs1
 			#self.dist=tf.add(self.X_pow,self.Y_pow) ;
 
-			self.weights = tf.Variable( tf.random_uniform(( 1, 1, self.n*self.n,self.input_shape[3]), 0.0, 1.0) ) 			
-			
+			self.weights = tf.Variable( tf.random_uniform(( 10, 576, self.n*self.n,self.input_shape[3]), 0.0, 1.0) ); 				print self.weights.get_shape().as_list()
 			#self.weights = tf.tile(self.weights, self.batch_size)
 			self.input_placeholder = tf.placeholder(tf.float32, shape=(self.batch_size, None, 1, None))
 			self.current_iteration = tf.placeholder(tf.float32)
@@ -109,33 +111,32 @@ class SOM:
                                                  lambda: self.alphaInf/self.bs,
                                                  lambda: self.alpha_tmp/self.bs) ;
 
-                	self.a_shape = tf.shape(self.alpha_tmp)
-			print self.a_shape
-			self.diff= tf.subtract(self.input_placeholder,self.weights)
+                	self.diff= tf.subtract(self.input_placeholder, self.weights)
+			
 			self.diff_sq = tf.square(self.diff)
-			self.diff_sum = tf.reduce_sum( self.diff_sq, axis=2)	#Take this
+			self.diff_sum = tf.reduce_sum( self.diff_sq, axis=3)	#Take this
 			#print self.diff_sum.op	#prints the operation performed and the attributes
-
+			
 			# Get the index of the best matching unit
-	     		self.bmu_index = tf.argmin(self.diff_sum, 1) ;
+	     		self.bmu_index = tf.argmin(self.diff_sum, 2) ;
                 	
 			self.dist_sliced=tf.gather(self.dist,self.bmu_index) 
-		
+			
 			self.distances = tf.exp(-self.dist_sliced / self.sigma_tmp )
 			self.lr_times_neigh = tf.multiply( self.alpha_tmp, self.distances )
-			self.lr_times_neigh = tf.expand_dims(self.lr_times_neigh, 2)
+			self.lr_times_neigh = tf.expand_dims(self.lr_times_neigh, 3)
 		
 			self.delta_w_batch = self.lr_times_neigh * self.diff
-			self.delta_w = tf.expand_dims(tf.reduce_sum (self.delta_w_batch, axis=0),0) ;
-
-			self.update_weights = tf.assign_add(self.weights, self.delta_w)
+			self.delta_w = tf.expand_dims(tf.reduce_sum (self.delta_w_batch, axis=1),0) ;
+			#print self.delta_w.get_shape().as_list()
+			#self.update_weights = tf.assign_add(self.weights, self.delta_w)
                         #print self.update_weights.op
                         
  		if(iteration==0):
        			tf.global_variables_initializer().run()
 
 		#return (self.session.run([self.diff_sum.op], {self.input_placeholder:input_x, self.current_iteration:iteration}))
-		self.session.run([self.update_weights], {self.input_placeholder:input_x, self.current_iteration:iteration})                
+		self.session.run([self.distances], {self.input_placeholder:input_x, self.current_iteration:iteration})                
 		
     
 
@@ -196,8 +197,8 @@ inpDim = traind.shape[1] ;
 dev=(args.device)
 map_size=args.map_size
 batch_size = (args.batch_size)
+#print map_size
 
-data = np.zeros((batch_size, 576 , 25))
 
 #g1 = tf.Graph() 
 #with g1.as_default() as g:
@@ -215,7 +216,7 @@ with tf.device(dev):
         start_time=time.time()
 
 	for i in range(num_training):
-			        
+		data = np.zeros((batch_size, 576 , 25))	        
                	counter = randint(0, 100)
 		arr = traind[counter:counter+batch_size]
 		#print arr[0].shape
@@ -236,8 +237,8 @@ with tf.device(dev):
 		dist = np.array(dis)
 		dist = np.squeeze(dist)
 		#print ("Before reshape")
-            	#print (dist.shape)
-		dist = np.reshape(dist, (24, 24, map_size*map_size))
+            	print (dist.shape)
+		dist = np.reshape(dist, (batch_size, 24, 24, map_size*map_size))
 		#print ("After reshape")
             	#print (dist.shape)
 
@@ -248,7 +249,7 @@ print weights.shape
 #x = np.squeeze(weights)
 #print x[0]
 
-#np.savez("som.npz", weights[0,:,:]) ;
+np.savez("som.npz", weights[0,:,:]) ;
 
 ##### Execution steps #####
 

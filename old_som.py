@@ -113,19 +113,20 @@ class SOM:
 			self.diff_sq = tf.square(self.diff)
 			self.diff_sum = tf.reduce_sum( self.diff_sq, axis=2)	#Take this
 			#print self.diff_sum.op	#prints the operation performed and the attributes
-
+             		
 			# Get the index of the best matching unit
 	     		self.bmu_index = tf.argmin(self.diff_sum, 1) ;
                 	
 			self.dist_sliced=tf.gather(self.dist,self.bmu_index) 
-		
+			#print self.distances.get_shape().as_list()
 			self.distances = tf.exp(-self.dist_sliced / self.sigma_tmp )
 			self.lr_times_neigh = tf.multiply( self.alpha_tmp, self.distances )
 			self.lr_times_neigh = tf.expand_dims(self.lr_times_neigh, 2)
-		
-			self.delta_w_batch = self.lr_times_neigh * self.diff
+			
+			self.delta_w_batch = self.lr_times_neigh * self.diff;
+			
 			self.delta_w = tf.expand_dims(tf.reduce_sum (self.delta_w_batch, axis=0),0) ;
-
+			
 			self.update_weights = tf.assign_add(self.weights, self.delta_w)
                         #print self.update_weights.op
                         	
