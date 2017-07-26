@@ -83,13 +83,14 @@ class SOM:
 
                         # is not part of the update graph since sqrt is not required
 			self.dist_input_protos = tf.sqrt(self.diff_sum) ;
-			
+			print self.diff.get_shape().as_list()
+
 			# Get the index of the best matching unit
 	     		self.bmu_index = tf.argmin(self.diff_sum, 3) ;
 
                         # get pre-computed squared distances in order to compute the gaussian neighbourhood                	
 			self.dist_sliced=tf.gather(self.dist,self.bmu_index) 	
-                        print self.dist_sliced	
+                        	
 			self.distances = tf.exp(-self.dist_sliced / self.sigma_tmp )
 
 			
@@ -141,7 +142,7 @@ class SOM:
 		#return self.x
 		self.x = arr
 		#print self.x.shape --- (784,)
-		self.index = np.load("index_array.npy")
+		self.index = np.load("index_arr.npy")
         
         	self.arr =  np.take(self.x, self.index)
         
