@@ -10,7 +10,6 @@ class SOM:
 	map_size_n: size of the (square) map
 	num_expected_iterations: number of iterations to be used during training. This parameter is used to derive good parameters for the learning rate and the neighborhood radius.
 	"""
-
 	def __init__(self, sample_size, map_size_n, bs, tConv, tInf, sigmaInf, alphaInf ):
 
 			self.n = map_size_n
@@ -22,7 +21,7 @@ class SOM:
 			self.current_iteration = tf.placeholder(tf.float32)
 			
                         # time constants for Learning rate
-                        alpha0=0.01; 
+                        alpha0=0.1; 
 			self.alpha0 = tf.constant( alpha0,dtype=tf.float32 ) ;
 			self.alphaInf = tf.constant( alphaInf,dtype=tf.float32 ) ;
 			self.tInf = tf.constant( tInf, dtype=tf.float32 ) ;
@@ -99,7 +98,7 @@ class SOM:
 		
                         print "weights", self.weights
 			self.delta_w_batch = self.lr_times_neigh * self.diff
-			self.delta_w = tf.expand_dims(tf.reduce_sum (self.delta_w_batch, axis=(0, 1, 2)), axis=0)
+			self.delta_w = tf.expand_dims(tf.reduce_sum (self.delta_w_batch, axis=(0,1,2)),axis=0	) ;
 			self.delta_w = tf.expand_dims(self.delta_w,axis=0	) ;
 			self.delta_w = tf.expand_dims(self.delta_w,axis=0	) ;
                         print "DeltaW", self.delta_w
@@ -148,19 +147,6 @@ class SOM:
         	#print "Array formed "
 		return self.arr
 
-import argparse
-from random import randint
-
-#parser = argparse.ArgumentParser()
-
-#parser.add_argument("device", help="GPU or CPU")
-#parser.add_argument("batch_size", help="Number of samples per iteration",type=int)
-#parser.add_argument("map_size", help="Size of the output layer", type= int)
-#args = parser.parse_args()
-
-#path = args.mnist 
-
-
 with gzip.open("/home/admin/MNIST_data/mnist.pkl.gz", 'rb') as f:
         ((traind,trainl),(vald,vall),(testd,testl))=cPickle.load(f)
         if vall==None and vald==None:
@@ -182,27 +168,25 @@ with g1.as_default() as g:
         
 		n = 10 ;
 		flag = 0
-		counter=0; k =1
+		counter=0
                 
                 _bs = 10 ; #batch Size
 		_nrPatchesY = 24; _nrPatchesX = 24 ; _nrChannels = 25;	#1 1 784
 
 		s = SOM(sample_size=_nrChannels, map_size_n=10, bs=_bs, tConv=1000, tInf=num_training/2, sigmaInf=1.0,
-                        alphaInf=0.005) ;
+                        alphaInf=0.05) ;
 
 		for i in range(num_training):
                         if i==1:
                           start_time=time.time()
-                	
-			#arr = np.zeros([_bs, 576, 25])
+                
                         arr = np.zeros([_bs, _nrPatchesY, _nrPatchesX, 1, _nrChannels])
 			dat = np.zeros([576, 25])
                         for j in xrange(0,_bs):
 		
-                        	dat = s.get_array(data[k+j]) ;
+                        	dat = s.get_array(data[i+j]) ;
 				arr [j] = np.reshape( dat, ( _nrPatchesY, _nrPatchesX, 1, _nrChannels ))
              		
-			#arr = np.expand_dims(arr, axis=2)
 			print arr.shape
 			print np.average(arr)	
 			
@@ -213,8 +197,7 @@ print ("FINAL TIME--- %s seconds ---" % (time.time() - start_time))
 
 weights  = s.get_weights()
 #print weights.shape
-np.savez("som.npz", weights[0,0,:,:]) ;
-
+np.savez("som.npz", weights[0,0,0,:,:]) ;
 # visualize to png file later with 
 # python visWeights.py som.npz 1 10 10 28 3
 # this creates a file w.png thatn you can view with eog

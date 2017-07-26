@@ -37,18 +37,17 @@ class SOM:
 	def graph_distance_and_update(self, input_shape, map_size_n, batch_size, tInf, sigmaInf, alphaInf, sess, input_x,  iteration ):
 		if(iteration==0):
 	
-	  		#print ("Time after Weight init--- %s seconds ---" % (time.time() - start_time))
-                	input_shape = input_shape#tuple([i for i in input_shape if i is not None])
+	  		input_shape = input_shape
 			self.input_x = input_x
 			self.iter = iteration
 			self.input_shape = input_shape
-                        #print "inputs", input_shape[3]
+                        
 			self.sigma_act = tf.constant( 1.0) ;
 			
 			self.n = map_size_n
 			self.batch_size = batch_size
 			self.session = sess
-			#print "fff", map_size_n, (tf.shape(self.n))
+			
                         alpha0=0.1; 
 			self.alpha0 = tf.constant( alpha0,dtype=tf.float32 ) ;
 			self.alphaInf = tf.constant( alphaInf,dtype=tf.float32 ) ;
@@ -89,12 +88,11 @@ class SOM:
 			
                         # this takes 12 secs for 100x100xbs1
 			self.dist=tf.Variable(tf.add(self.X_pow,self.Y_pow)) ;
-			#self.dist = self.X_pow + self.Y_pow
 			
 	                # this takes 31 secs for 100x100xbs1
 			#self.dist=tf.add(self.X_pow,self.Y_pow) ;
 
-			self.weights = tf.Variable( tf.random_uniform(( 10, 576, self.n*self.n,self.input_shape[3]), 0.0, 1.0) ); 				print self.weights.get_shape().as_list()
+			self.weights = tf.Variable( tf.random_uniform(( 10, 576, self.n*self.n,self.input_shape[3]), 0.0, 1.0) ); 				#print self.weights.get_shape().as_list()
 			#self.weights = tf.tile(self.weights, self.batch_size)
 			self.input_placeholder = tf.placeholder(tf.float32, shape=(self.batch_size, None, 1, None))
 			self.current_iteration = tf.placeholder(tf.float32)
@@ -112,7 +110,7 @@ class SOM:
                                                  lambda: self.alpha_tmp/self.bs) ;
 
                 	self.diff= tf.subtract(self.input_placeholder, self.weights)
-			
+			#print self.diff.get_shape().as_list()
 			self.diff_sq = tf.square(self.diff)
 			self.diff_sum = tf.reduce_sum( self.diff_sq, axis=3)	#Take this
 			#print self.diff_sum.op	#prints the operation performed and the attributes
@@ -127,16 +125,16 @@ class SOM:
 			self.lr_times_neigh = tf.expand_dims(self.lr_times_neigh, 3)
 		
 			self.delta_w_batch = self.lr_times_neigh * self.diff
-			self.delta_w = tf.expand_dims(tf.reduce_sum (self.delta_w_batch, axis=1),0) ;
-			#print self.delta_w.get_shape().as_list()
-			#self.update_weights = tf.assign_add(self.weights, self.delta_w)
+			#self.delta_w = tf.expand_dims(tf.reduce_sum (self.delta_w_batch, axis=1),0) ;
+			
+			self.update_weights = tf.assign_add(self.weights, self.delta_w_batch)
                         #print self.update_weights.op
                         
  		if(iteration==0):
        			tf.global_variables_initializer().run()
 
 		#return (self.session.run([self.diff_sum.op], {self.input_placeholder:input_x, self.current_iteration:iteration}))
-		self.session.run([self.distances], {self.input_placeholder:input_x, self.current_iteration:iteration})                
+		self.session.run([self.update_weights], {self.input_placeholder:input_x, self.current_iteration:iteration})                
 		
     
 
@@ -205,7 +203,7 @@ batch_size = (args.batch_size)
 with tf.device(dev):
 	#sess = tf.InteractiveSession(graph=g)
         sess = tf.InteractiveSession()
-	num_training = 10
+	num_training = 3000
 	s = SOM()
 
 	#sess.run(tf.global_variables_initializer())
@@ -222,26 +220,22 @@ with tf.device(dev):
 		#print arr[0].shape
 		for j in range(0, batch_size):
 
-		        data[j] = s.get_array(arr[j])
+			data[j] = s.get_array(arr[j])
 			            
 		data=np.expand_dims(data, axis=2)
 		#data=np.expand_dims(data, axis=0)
-		print data.shape
-                #arr = traind[i:i+batch_size,np.newaxis,:] ;
-		
-
+		#print data.shape
+                
 		#change the following to arr.shape for the original SOM implementation
 		s.graph_distance_and_update(data.shape, map_size, batch_size, num_training/2, 1.0, 0.05, sess, data, flag)
 		flag=flag+1
-         	dis = s.get_distances()
-		dist = np.array(dis)
-		dist = np.squeeze(dist)
+         	#dis = s.get_distances()
+		#dist = np.array(dis)
+		#dist = np.squeeze(dist)
 		#print ("Before reshape")
-            	print (dist.shape)
-		dist = np.reshape(dist, (batch_size, 24, 24, map_size*map_size))
-		#print ("After reshape")
             	#print (dist.shape)
-
+		#dist = np.reshape(dist, (batch_size, 24, 24, map_size*map_size))
+	
 print ("FINAL TIME--- %s seconds ---" % (time.time() - start_time))
 
 weights  = s.get_weights()
@@ -249,7 +243,7 @@ print weights.shape
 #x = np.squeeze(weights)
 #print x[0]
 
-np.savez("som.npz", weights[0,:,:]) ;
+np.savez("som.npz", weights[0,0,:,:]) ;
 
 ##### Execution steps #####
 
