@@ -142,7 +142,7 @@ class SOM:
 		#return self.x
 		self.x = arr
 		#print self.x.shape --- (784,)
-		self.index = np.load("index_arr.npy")
+		self.index = np.load("index_array.npy")
         
         	self.arr =  np.take(self.x, self.index)
         
@@ -177,16 +177,16 @@ start_time=time.time()
 g1 = tf.Graph() 
 with g1.as_default() as g:
 	with tf.device(dev):
+		
 		sess = tf.InteractiveSession(graph=g)
         
 		num_training = 500
         
-		n = 10 ;
 		flag = 0
 		counter=0;
                 
-                _bs = 10 ; #batch Size
-		_nrPatchesY = 24; _nrPatchesX = 24 ; _nrChannels = 25;	#1 1 784
+                _bs = 10 ; 	#batch Size
+		_nrPatchesY = 24; _nrPatchesX = 24 ; _nrChannels = 25;		#1 1 784 for the entire image
 
 		s = SOM(sample_size=_nrChannels, map_size_n=10, bs=_bs, tConv=1000, tInf=num_training/2, sigmaInf=1.0,
                         alphaInf=0.005) ;
