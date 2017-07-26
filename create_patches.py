@@ -15,11 +15,13 @@ from PIL import Image
 
 ####### np.take indexing ########
 
-patch_x = 5
-patch_y = 5
+patch_x = 28
+patch_y = 28
 stride_x = 1
 stride_y = 1
-patches = patch_x * patch_y
+
+patches = patch_x * patch_y         #calculation of total patches
+
 r_x = ((28-patch_x)/stride_x)+1
 r_y = ((28-patch_y)/stride_y)+1
 row_lim = (r_x * r_y)
@@ -30,8 +32,11 @@ arr = np.zeros(shape=(row_lim,patches), dtype= 'int64')
 row=0
 col=0
 counter = 0
-iteration = np.array([0,28,28*2,28*3,28*4])
-
+iteration = np.zeros([patch_x])
+for i in range(0,patch_x):
+    iteration[i] = 28 *i
+    #iteration = np.array([0,28,28*2,28*3,28*4])
+print iteration
 index = 0
 
 while(row<row_lim):
@@ -53,10 +58,7 @@ while(row<row_lim):
     row+=1
     counter = initial
 
-np.save('index_arr.npy', arr)
-#print np.max(arr)#[0][0]
-
-
+np.save('index_arr'+str(patch_x)+'.npy', arr)
 
 '''
 with gzip.open("/home/admin/MNIST_data/mnist.pkl.gz","rb") as f:
