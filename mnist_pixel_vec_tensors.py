@@ -13,23 +13,33 @@ import argparse, cv2
 from matplotlib import pyplot as plt
 from PIL import Image
 
-arr = np.zeros(shape=(576,25), dtype= 'int64')
+patch_x = 5
+patch_y = 5
+stride_x = 1
+stride_y = 1
+patches = patch_x * patch_y
+r_x = ((28-patch_x)/stride_x)+1
+r_y = ((28-patch_y)/stride_y)+1
+row_lim = (r_x * r_y)
+print row_lim
+
+arr = np.zeros(shape=(row_lim,patches), dtype= 'int64')
 
 row=0
 col=0
 counter = 0
 iteration = np.array([0,28,28*2,28*3,28*4])
-#arr[row][col] = 1
+
 index = 0
 
-while(row<576):
+while(row<row_lim):
     col=0
     index = 0
     initial = counter+1
-    while(col<25):
+    while(col<patches):                             #25 for 5 X 5 patches
         arr[row][col]= (counter+iteration[index])
-        print (counter+iteration[index])
-        if(counter==(initial+3)):
+        #print (counter+iteration[index])
+        if(counter==(initial+(patch_x-2))):         #3 for 5 X 5 patches
             #print counter
             counter = initial-1
             index = index+1
@@ -41,7 +51,7 @@ while(row<576):
     row+=1
     counter = initial
 
-np.save('index_array.npy', arr)
+np.save('index_arr.npy', arr)
 #print np.max(arr)#[0][0]
 
 

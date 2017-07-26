@@ -182,7 +182,7 @@ with g1.as_default() as g:
         
 		n = 10 ;
 		flag = 0
-		counter=0; k =1
+		counter=0;
                 
                 _bs = 10 ; #batch Size
 		_nrPatchesY = 24; _nrPatchesX = 24 ; _nrChannels = 25;	#1 1 784
@@ -199,12 +199,12 @@ with g1.as_default() as g:
 			dat = np.zeros([576, 25])
                         for j in xrange(0,_bs):
 		
-                        	dat = s.get_array(data[k+j]) ;
+                        	dat = s.get_array(data[i+j]) ;
 				arr [j] = np.reshape( dat, ( _nrPatchesY, _nrPatchesX, 1, _nrChannels ))
              		
 			#arr = np.expand_dims(arr, axis=2)
-			print arr.shape
-			print np.average(arr)	
+			#print arr.shape
+			#print np.average(arr)	
 			
 			s.graph_distance_and_update(sess, arr, flag)
 			flag=flag+1
@@ -213,7 +213,7 @@ print ("FINAL TIME--- %s seconds ---" % (time.time() - start_time))
 
 weights  = s.get_weights()
 #print weights.shape
-np.savez("som.npz", weights[0,0,:,:]) ;
+np.savez("som.npz", weights[0,0,0,:,:]) ;
 
 # visualize to png file later with 
 # python visWeights.py som.npz 1 10 10 28 3
