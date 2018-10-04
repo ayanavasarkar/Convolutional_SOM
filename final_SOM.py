@@ -152,6 +152,7 @@ class SOM:
 import argparse
 from random import randint
 
+#### Parsers for inputs into related to GPU/CPU, the batch size and map size of the SOM models.
 #parser = argparse.ArgumentParser()
 
 #parser.add_argument("device", help="GPU or CPU")
@@ -161,7 +162,7 @@ from random import randint
 
 #path = args.mnist 
 
-
+#### Load the pickle files of the MNIST
 with gzip.open("/home/admin/MNIST_data/mnist.pkl.gz", 'rb') as f:
         ((traind,trainl),(vald,vall),(testd,testl))=cPickle.load(f)
         if vall==None and vald==None:
