@@ -171,7 +171,7 @@ inpDim = traind.shape[1] ;
   
 data = traind; labels = trainl ;
 
-dev="/cpu:0"
+dev="/cpu:0"	# Choose "/gpu:0" for GPU operations
 
 start_time=time.time()
 
@@ -215,6 +215,8 @@ print ("FINAL TIME--- %s seconds ---" % (time.time() - start_time))
 
 weights  = s.get_weights()
 #print weights.shape
+
+### Weights to be saved
 np.savez("som.npz", weights[0,0,0,:,:]) ;
 
 # visualize to png file later with 
