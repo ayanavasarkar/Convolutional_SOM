@@ -216,7 +216,7 @@ print ("FINAL TIME--- %s seconds ---" % (time.time() - start_time))
 weights  = s.get_weights()
 #print weights.shape
 
-### Weights to be saved
+### Weights to be saved in a npz file
 np.savez("som.npz", weights[0,0,0,:,:]) ;
 
 # visualize to png file later with 
