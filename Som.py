@@ -174,6 +174,7 @@ class SOM:
 import argparse
 from random import randint
 
+##Input functions capabilities
 parser = argparse.ArgumentParser()
 #parser.add_argument("mnist", help="mnist path")
 parser.add_argument("device", help="GPU or CPU")
