@@ -8,10 +8,12 @@ Main code file - final_SOM.py
 
 # Steps to follow - 
 
-# 1) python final_SOM.py
-# 2) python visWeights.py som.npz 1 10 10 28 3
-# 3) Finally view the w.png file to observe the results
+1) python final_SOM.py
+2) python visWeights.py som.npz 1 10 10 28 3
+3) Finally view the w.png file to observe the results
 
-(More details coming soon...)
+Please refer and cite the following paper:
 
-Paper has been accepted.
+An energy-based convolutional SOM model with self-adaptation capabilities
+A Gepperth, A Sarkar, T Kopinski - International Conference on Artificial Neural Networks, 2018
+(www.neuroinformatics.eu/alexander/papers/gepperth2018b.pdf)
