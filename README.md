@@ -16,4 +16,5 @@ Please refer and cite the following paper:
 
 An energy-based convolutional SOM model with self-adaptation capabilities
 A Gepperth, A Sarkar, T Kopinski - International Conference on Artificial Neural Networks, 2018
-(www.neuroinformatics.eu/alexander/papers/gepperth2018b.pdf)
+
+(Link to Paper- www.neuroinformatics.eu/alexander/papers/gepperth2018b.pdf)
